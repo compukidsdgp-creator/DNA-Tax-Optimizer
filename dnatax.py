@@ -385,6 +385,12 @@ Visit dnaca.com.au or call 02-90644400
     doc.build(content)
 
     return file_path
+st.header("📄 Export Report")
+
+if st.button("Generate PDF"):
+    pdf = generate_pdf()
+    with open(pdf, "rb") as f:
+        st.download_button("Download PDF", f, file_name="Tax_Report.pdf")
 # -----------------------------
 # FOOTER
 # -----------------------------
