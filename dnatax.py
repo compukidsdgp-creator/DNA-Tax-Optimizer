@@ -319,12 +319,8 @@ if st.button("Generate AI Advice"):
 # -----------------------------
 
 def generate_pdf():
-    import matplotlib
-    matplotlib.use('Agg')  # important for Streamlit cloud
-
-    import matplotlib.pyplot as plt
-
-    file_path = "Tax_Report.pdf"
+    
+   file_path = "Tax_Report.pdf"
 
     doc = SimpleDocTemplate(file_path)
     styles = getSampleStyleSheet()
