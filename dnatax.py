@@ -328,6 +328,7 @@ def generate_pdf():
     # -----------------------------
     # TITLE
     # -----------------------------
+    content.append(Image("logo.png", width=100, height=50))
     content.append(Paragraph("Tax Summary Report", styles["Title"]))
     content.append(Spacer(1, 20))
 
@@ -465,7 +466,7 @@ Suggest tax saving strategies in simple points with examples.
 At the end include:
 Visit dnaca.com.au or call 02-90644400
 
-and most importantly please remove all asterisk and hash symbols from the advise part..looking so unprofessional.
+and most importantly please remove all double asterisk (*) signs and hash symbols from the advise part..looking so unprofessional.
 """
 
         response = model.generate_content(prompt)
