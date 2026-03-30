@@ -5,3 +5,4 @@ scikit-learn
 plotly
 reportlab
 google.generativeai
+matplotlib
