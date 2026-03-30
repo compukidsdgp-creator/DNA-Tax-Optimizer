@@ -319,11 +319,115 @@ if st.button("Generate AI Advice"):
 # -----------------------------
 
 def generate_pdf():
-    file_path = "tax_report.pdf"
+    file_path = "Tax_Report.pdf"
+
     doc = SimpleDocTemplate(file_path)
     styles = getSampleStyleSheet()
-
     content = []
+
+    # -----------------------------
+    # LOGO + TITLE
+    # -----------------------------
+    try:
+        logo = Image("logo.png", width=120, height=60)
+        content.append(logo)
+    except:
+        pass
+
+    content.append(Spacer(1, 10))
+    content.append(Paragraph("Tax Summary Report", styles["Title"]))
+    content.append(Spacer(1, 20))
+
+    # -----------------------------
+    # CURRENT TAX POSITION TABLE
+    # -----------------------------
+    summary_data = [
+        ["Metric", "Amount ($)"],
+        ["Total Income", f"{total_income:,.2f}"],
+        ["Taxable Income", f"{taxable_income:,.2f}"],
+        ["Net Tax", f"{net_tax:,.2f}"],
+        ["Rental Income", f"{net_rental:,.2f}"],
+    ]
+
+    table = Table(summary_data, colWidths=[220, 150])
+    table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("GRID", (0, 0), (-1, -1), 1, colors.black),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+    ]))
+
+    content.append(Paragraph("Current Tax Position", styles["Heading2"]))
+    content.append(Spacer(1, 10))
+    content.append(table)
+    content.append(Spacer(1, 20))
+
+    # -----------------------------
+    # INCOME CHART
+    # -----------------------------
+    def create_income_chart():
+        labels = ["Salary", "Rental", "Other"]
+        values = [salary_income, net_rental, other_income]
+
+        plt.figure()
+        plt.pie(values, labels=labels, autopct='%1.1f%%')
+        plt.title("Income Breakdown")
+
+        path = "income_chart.png"
+        plt.savefig(path)
+        plt.close()
+        return path
+
+    income_chart = create_income_chart()
+    content.append(Paragraph("Income Breakdown", styles["Heading2"]))
+    content.append(Image(income_chart, width=400, height=250))
+    content.append(Spacer(1, 20))
+
+    # -----------------------------
+    # EXPENSE CHART (NEW)
+    # -----------------------------
+    def create_expense_chart():
+        labels = ["Rent Expense", "Loan Interest", "Other Expenses"]
+        values = [rent_expense, loan_interest, other_expenses]
+
+        plt.figure()
+        plt.bar(labels, values)
+        plt.title("Expense Breakdown")
+
+        path = "expense_chart.png"
+        plt.savefig(path)
+        plt.close()
+        return path
+
+    expense_chart = create_expense_chart()
+    content.append(Paragraph("Expense Breakdown", styles["Heading2"]))
+    content.append(Image(expense_chart, width=400, height=250))
+    content.append(Spacer(1, 20))
+
+    # -----------------------------
+    # TAX ANALYSIS
+    # -----------------------------
+    analysis_text = ""
+
+    if taxable_income > 180000:
+        analysis_text += "• High taxable income pushing into top tax bracket.<br/>"
+
+    if net_rental > 0:
+        analysis_text += "• Positive rental income increasing tax liability.<br/>"
+
+    if deductions < 10000:
+        analysis_text += "• Low deductions claimed.<br/>"
+
+    if capital_gain > 0:
+        analysis_text += "• Capital gains contributing to higher tax.<br/>"
+
+    if analysis_text == "":
+        analysis_text = "• Tax position appears optimised."
+
+    content.append(Paragraph("Tax Analysis", styles["Heading2"]))
+    content.append(Spacer(1, 10))
+    content.append(Paragraph(analysis_text, styles["Normal"]))
+    content.append(Spacer(1, 20))
 
     # -----------------------------
     # AI ADVICE
