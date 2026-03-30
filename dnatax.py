@@ -321,26 +321,18 @@ if st.button("Generate AI Advice"):
 def generate_pdf():
     
     file_path = "Tax_Report.pdf"
-
     doc = SimpleDocTemplate(file_path)
     styles = getSampleStyleSheet()
     content = []
 
     # -----------------------------
-    # LOGO + TITLE
+    # TITLE
     # -----------------------------
-    try:
-        logo = Image("logo.png", width=120, height=60)
-        content.append(logo)
-    except:
-        pass
-
-    content.append(Spacer(1, 10))
     content.append(Paragraph("Tax Summary Report", styles["Title"]))
     content.append(Spacer(1, 20))
 
     # -----------------------------
-    # CURRENT TAX POSITION TABLE
+    # SUMMARY TABLE
     # -----------------------------
     summary_data = [
         ["Metric", "Amount ($)"],
@@ -350,102 +342,94 @@ def generate_pdf():
         ["Rental Income", f"{net_rental:,.2f}"],
     ]
 
-    table = Table(summary_data, colWidths=[220, 150])
+    table = Table(summary_data)
     table.setStyle(TableStyle([
+        ("GRID", (0, 0), (-1, -1), 1, colors.black),
         ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
         ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-        ("GRID", (0, 0), (-1, -1), 1, colors.black),
-        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
     ]))
 
     content.append(Paragraph("Current Tax Position", styles["Heading2"]))
-    content.append(Spacer(1, 10))
     content.append(table)
     content.append(Spacer(1, 20))
 
     # -----------------------------
-    # INCOME CHART (FIXED)
+    # SAFE CHART FUNCTION
     # -----------------------------
-    def create_income_chart():
-        labels = ["Salary", "Allowance", "Interest", "Dividend", "Capital Gain", "Rental", "Other"]
+    def safe_pie_chart(values, labels, filename):
+        try:
+            if sum(values) == 0:
+                return None
+            plt.figure()
+            plt.pie(values, labels=labels, autopct='%1.1f%%')
+            plt.savefig(filename)
+            plt.close()
+            return filename
+        except:
+            return None
 
-        values = [
-            salary,
-            allowance,
-            interest,
+    # -----------------------------
+    # INCOME CHART
+    # -----------------------------
+    income_chart = safe_pie_chart(
+        [
+            salary, allowance, interest,
             dividend + franked_dividend,
-            capital_gain,
-            net_rental,
-            other_income
-        ]
+            capital_gain, net_rental, other_income
+        ],
+        ["Salary", "Allowance", "Interest", "Dividend",
+         "Capital", "Rental", "Other"],
+        "income_chart.png"
+    )
 
+    if income_chart:
+        content.append(Paragraph("Income Breakdown", styles["Heading2"]))
+        content.append(Image(income_chart, width=400, height=250))
+        content.append(Spacer(1, 20))
+
+    # -----------------------------
+    # EXPENSE CHART
+    # -----------------------------
+    try:
         plt.figure()
-        plt.pie(values, labels=labels, autopct='%1.1f%%')
-
-        path = "income_chart.png"
-        plt.savefig(path)
+        plt.bar(
+            ["Interest","Repairs","Agent","Depreciation","Other","Deductions"],
+            [rental_interest, rental_repairs, rental_agent,
+             rental_depreciation, rental_other, total_deductions]
+        )
+        plt.savefig("expense_chart.png")
         plt.close()
-        return path
 
-    income_chart = create_income_chart()
-    content.append(Paragraph("Income Breakdown", styles["Heading2"]))
-    content.append(Image(income_chart, width=400, height=250))
-    content.append(Spacer(1, 20))
-
-    # -----------------------------
-    # EXPENSE CHART (FIXED)
-    # -----------------------------
-    def create_expense_chart():
-        labels = [
-            "Loan Interest", "Repairs", "Agent Fees",
-            "Depreciation", "Other Rental", "Deductions"
-        ]
-
-        values = [
-            rental_interest,
-            rental_repairs,
-            rental_agent,
-            rental_depreciation,
-            rental_other,
-            total_deductions
-        ]
-
-        plt.figure()
-        plt.bar(labels, values)
-
-        path = "expense_chart.png"
-        plt.savefig(path)
-        plt.close()
-        return path
-
-    expense_chart = create_expense_chart()
-    content.append(Paragraph("Expense Breakdown", styles["Heading2"]))
-    content.append(Image(expense_chart, width=400, height=250))
-    content.append(Spacer(1, 20))
+        content.append(Paragraph("Expense Breakdown", styles["Heading2"]))
+        content.append(Image("expense_chart.png", width=400, height=250))
+        content.append(Spacer(1, 20))
+    except:
+        pass
 
     # -----------------------------
-    # TAX ANALYSIS (FIXED VARIABLE)
+    # TAX ANALYSIS
     # -----------------------------
-    analysis_text = ""
+    analysis = []
 
     if taxable_income > 180000:
-        analysis_text += "• High taxable income pushing into top tax bracket.<br/>"
+        analysis.append("High taxable income in top bracket")
 
     if net_rental > 0:
-        analysis_text += "• Positive rental income increasing tax liability.<br/>"
+        analysis.append("Positive rental income increasing tax")
 
-    if total_deductions < 10000:  # FIXED
-        analysis_text += "• Low deductions claimed.<br/>"
+    if total_deductions < 10000:
+        analysis.append("Low deductions claimed")
 
     if capital_gain > 0:
-        analysis_text += "• Capital gains contributing to higher tax.<br/>"
+        analysis.append("Capital gains present")
 
-    if analysis_text == "":
-        analysis_text = "• Tax position appears optimised."
+    if not analysis:
+        analysis.append("Tax position appears optimised")
 
     content.append(Paragraph("Tax Analysis", styles["Heading2"]))
-    content.append(Spacer(1, 10))
-    content.append(Paragraph(analysis_text, styles["Normal"]))
+    for line in analysis:
+        content.append(Paragraph(f"• {line}", styles["Normal"]))
+
     content.append(Spacer(1, 20))
 
     # -----------------------------
