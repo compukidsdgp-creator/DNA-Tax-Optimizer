@@ -277,7 +277,7 @@ if st.button("Generate AI Advice"):
     
     key note: put this one ...Please feel free to reach out to us for a personalised consultation to discuss your specific situation and get tailored advice.
 
-   Visit our website: dnaca.com.au Or call us on: 02-90644400 first and followed by the advice
+   Visit our website: dnaca.com.au or call us on: 02-90644400 first and followed by the advice
     """
 
     with st.spinner("💡 Finalizing expert recommendations..."):
