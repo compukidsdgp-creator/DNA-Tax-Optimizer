@@ -464,6 +464,8 @@ Suggest tax saving strategies in simple points with examples.
 
 At the end include:
 Visit dnaca.com.au or call 02-90644400
+
+and most importantly please remove all asterisk and hash symbols from the advise part..looking so unprofessional.
 """
 
         response = model.generate_content(prompt)
