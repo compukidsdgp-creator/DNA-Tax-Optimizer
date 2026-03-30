@@ -319,6 +319,11 @@ if st.button("Generate AI Advice"):
 # -----------------------------
 
 def generate_pdf():
+    import matplotlib
+    matplotlib.use('Agg')  # important for Streamlit cloud
+
+    import matplotlib.pyplot as plt
+
     file_path = "Tax_Report.pdf"
 
     doc = SimpleDocTemplate(file_path)
@@ -363,15 +368,23 @@ def generate_pdf():
     content.append(Spacer(1, 20))
 
     # -----------------------------
-    # INCOME CHART
+    # INCOME CHART (FIXED)
     # -----------------------------
     def create_income_chart():
-        labels = ["Salary", "Rental", "Other"]
-        values = [salary_income, net_rental, other_income]
+        labels = ["Salary", "Allowance", "Interest", "Dividend", "Capital Gain", "Rental", "Other"]
+
+        values = [
+            salary,
+            allowance,
+            interest,
+            dividend + franked_dividend,
+            capital_gain,
+            net_rental,
+            other_income
+        ]
 
         plt.figure()
         plt.pie(values, labels=labels, autopct='%1.1f%%')
-        plt.title("Income Breakdown")
 
         path = "income_chart.png"
         plt.savefig(path)
@@ -384,15 +397,25 @@ def generate_pdf():
     content.append(Spacer(1, 20))
 
     # -----------------------------
-    # EXPENSE CHART (NEW)
+    # EXPENSE CHART (FIXED)
     # -----------------------------
     def create_expense_chart():
-        labels = ["Rent Expense", "Loan Interest", "Other Expenses"]
-        values = [rent_expense, loan_interest, other_expenses]
+        labels = [
+            "Loan Interest", "Repairs", "Agent Fees",
+            "Depreciation", "Other Rental", "Deductions"
+        ]
+
+        values = [
+            rental_interest,
+            rental_repairs,
+            rental_agent,
+            rental_depreciation,
+            rental_other,
+            total_deductions
+        ]
 
         plt.figure()
         plt.bar(labels, values)
-        plt.title("Expense Breakdown")
 
         path = "expense_chart.png"
         plt.savefig(path)
@@ -405,7 +428,7 @@ def generate_pdf():
     content.append(Spacer(1, 20))
 
     # -----------------------------
-    # TAX ANALYSIS
+    # TAX ANALYSIS (FIXED VARIABLE)
     # -----------------------------
     analysis_text = ""
 
@@ -415,7 +438,7 @@ def generate_pdf():
     if net_rental > 0:
         analysis_text += "• Positive rental income increasing tax liability.<br/>"
 
-    if deductions < 10000:
+    if total_deductions < 10000:  # FIXED
         analysis_text += "• Low deductions claimed.<br/>"
 
     if capital_gain > 0:
