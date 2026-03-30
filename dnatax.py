@@ -461,10 +461,10 @@ Taxable Income: {taxable_income}
 Net Tax: {net_tax}
 Rental: {net_rental}
 
-Suggest tax saving strategies in simple points with examples.
+Suggest tax saving strategies in simple points with examples under bullet points but don't use asterisk. make the paragraphs alignment as justify.
 
 At the end include:
-Visit dnaca.com.au or call 02-90644400
+Visit dnaca.com.au or call 02-90644400, make this part bold.
 
 and most importantly please remove all double asterisk (*) signs and hash symbols from the advise part..looking so unprofessional.
 """
