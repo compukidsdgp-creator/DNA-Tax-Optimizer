@@ -320,7 +320,7 @@ if st.button("Generate AI Advice"):
 
 def generate_pdf():
     
-   file_path = "Tax_Report.pdf"
+    file_path = "Tax_Report.pdf"
 
     doc = SimpleDocTemplate(file_path)
     styles = getSampleStyleSheet()
